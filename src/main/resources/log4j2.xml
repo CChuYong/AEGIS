@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" >
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{HH:mm:ss}][%t][%-4level] %msg%n"/>
+        </Console>
+        <RollingFile name="file" fileName="/log/logtest.log" filePattern="/log/logs/logtest_%d{yyyy-MM-dd}_%i.log">
+            <PatternLayout pattern="[%d{HH:mm:ss}][%t][%-4level] %msg%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10MB" />
+                <TimeBasedTriggeringPolicy module="true" interval="1" />
+            </Policies>
+            <DefaultRolloverStrategy max="500" fileIndex="min" />
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="STDOUT"/>
+        </Root>
+    </Loggers>
+</Configuration>
