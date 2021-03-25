@@ -1,5 +1,6 @@
 package chuyong.aegis.connectors.netty;
 
+import chuyong.aegis.AEGIS;
 import chuyong.aegis.cache.DeviceCache;
 import chuyong.aegis.device.CeilingLight;
 import chuyong.aegis.impl.device.Device;
@@ -26,20 +27,21 @@ public class HandshakeHandler extends ChannelInboundHandlerAdapter {
         ByteBuf buf = (ByteBuf) msg;
         if(buf.readableBytes() < 24){
             ctx.disconnect();
-            LOGGER.info("Handshake Requested dropped by unknown packet. address: "+ctx.channel().remoteAddress());
+            LOGGER.info("Handshake Request dropped by unknown packet. address: "+ctx.channel().remoteAddress());
             return;
         }
         int type = (int)buf.readLongLE();
         long least = buf.readLongLE();
         long most = buf.readLongLE();
         UUID uuid = new UUID(most, least);
+        String name = AEGIS.getInstance().getSqlHandler().getName(uuid, type);
         switch(type){
             case 1:
-                attachHandler(ctx, new CeilingLight(ctx, "ai", uuid));
+                attachHandler(ctx, new CeilingLight(ctx, name, uuid));
                 break;
             default:
                 ctx.disconnect();
-                LOGGER.info("Handshake Requested dropped by unknown device type. address: "+ctx.channel().remoteAddress());
+                LOGGER.info("Handshake Request dropped by unknown device type. address: "+ctx.channel().remoteAddress());
                 return;
         }
         super.channelRead(ctx, msg);

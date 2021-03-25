@@ -1,11 +1,14 @@
 package chuyong.aegis;
 
+import chuyong.aegis.cache.AEGISConfig;
 import chuyong.aegis.command.CommandProcessor;
 import chuyong.aegis.command.internal.*;
 import chuyong.aegis.connectors.netty.AEGISServer;
 import chuyong.aegis.connectors.netty.packets.out.TurnOn;
+import chuyong.aegis.storage.MySQLHandler;
 import chuyong.aegis.user.AEGISUser;
 import chuyong.aegis.util.scheduler.AEGISScheduler;
+import lombok.Getter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +26,9 @@ public class AEGIS extends AEGISUser {
     private static AEGIS INSTANCE;
     private static boolean isRunning = false;
     private CommandProcessor commandProcessor;
-     private LineReader reader;
+    private LineReader reader;
+    @Getter
+    private MySQLHandler sqlHandler;
     public AEGIS(){
         INSTANCE = this;
         isRunning = false;
@@ -32,7 +37,10 @@ public class AEGIS extends AEGISUser {
         commandProcessor = new CommandProcessor();
         System.setOut(IoBuilder.forLogger(LOGGER).setLevel(Level.INFO).buildPrintStream());
         System.setErr(IoBuilder.forLogger(LOGGER).setLevel(Level.ERROR).buildPrintStream());
+        AEGISConfig.load();
         AEGISScheduler.init();
+        sqlHandler = new MySQLHandler();
+        sqlHandler.initialize();
         try{
              reader = LineReaderBuilder.builder().terminal(
                      TerminalBuilder.builder()
@@ -61,7 +69,7 @@ public class AEGIS extends AEGISUser {
         logo();
         initDefaultElements();
         LOGGER.info("Starting Netty NIO TCP Server...");
-        SERVER = new AEGISServer(10050);
+        SERVER = new AEGISServer(AEGISConfig.NETTY_PORT);
         try{
             SERVER.start();
             LOGGER.info("Netty NIO TCP Server Initialization Success.");
@@ -86,9 +94,6 @@ public class AEGIS extends AEGISUser {
         System.out.println(" / ___ |/ /___/ /_/ // / ___/ / ");
         System.out.println("/_/  |_/_____/\\____/___//____/  ");
         System.out.println("");
-        UUID uuid = UUID.randomUUID();
-        System.out.println(uuid.getLeastSignificantBits());
-        System.out.println(uuid.getMostSignificantBits());
     }
     public void initDefaultElements(){
         CommandProcessor.registerCommand(new CommandCL());

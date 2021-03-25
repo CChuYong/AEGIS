@@ -24,7 +24,6 @@ public class CommandMvDiv extends CommandHandler {
             return;
         }
         Preconditions.checkNotNull(args.argument[0], "Please follow the usage of command. Type mvdiv --help");
-        Preconditions.checkNotNull(args.argument[1], "Please follow the usage of command. Type mvdiv --help");
         Device div = DeviceCache.getDeviceByName(args.argument[0]);
         if(div == null){
             throw new DeviceNotFoundException("Following device can't be found in runtime.");

@@ -47,7 +47,7 @@ public class AEGISServer extends Thread{
                         .childOption(ChannelOption.SO_KEEPALIVE, true);
                 future = sb.bind(port).addListener(listener);
         }catch(Exception ex){
-
+            ex.printStackTrace();
         }
     }
     public void shutdown(){
